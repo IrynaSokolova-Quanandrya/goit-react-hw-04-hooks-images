@@ -1,36 +1,35 @@
-import React, { Component } from "react";
+import { useState } from "react";
 import { toast } from 'react-toastify';
+import PropTypes from 'prop-types';
 import 'react-toastify/dist/ReactToastify.css';
 import s from "../Searchbar/Searchbar.module.css";
 
-class Searchbar extends Component {
-    state = {
-        query:'',
+function Searchbar ({onSubmit}) {
+    const [query, setQuery] = useState('');
+
+   const handleChange = (e) => {
+        setQuery(e.target.value.toLowerCase())        
     }
-    handleChange = (e) => {
-        this.setState({query: e.target.value.toLowerCase()})        
-    }
-    handleSubmit = (e) => {
+     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (this.state.query.trim() === '') {
+        if (query.trim() === '') {
             return toast.error("Enter search query!")
-           
         }
-        this.props.onSubmit(this.state.query)
-        this.setState({ query: '' });
+        onSubmit(query)
+        setQuery('');
     }
-    render() {
+
         return (
             <header className={s.Searchbar}>
-                <form onSubmit={this.handleSubmit} className={s.SearchForm}>
+                <form onSubmit={handleSubmit} className={s.SearchForm}>
                     <button type="submit" className={s.SearchForm__button}>
                         <span className={s.SearchForm__buttonLabel}>Search</span>
                     </button>
                     <input
                         className={s.SearchForm__input}
-                        onChange={this.handleChange}
-                        value={this.state.query}
+                        onChange={handleChange}
+                        value={query}
                         name='query'
                         type="text"
                         autoComplete="off"
@@ -40,6 +39,11 @@ class Searchbar extends Component {
                 </form>
             </header>
         )
-    }
+    
 }
+
+Searchbar.prototype = {
+    onSubmit: PropTypes.func.isRequired
+}
+
 export default Searchbar
