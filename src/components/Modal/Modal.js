@@ -1,33 +1,29 @@
-import React, { Component } from 'react';
+import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import PropTypes from "prop-types";
 import s from "../Modal/Modal.module.css";
 
 const modalRoot = document.querySelector('#modal-root');
 
-export default class Modal extends Component{
+function Modal({ onClose, onGetImg}) {
      
-    componentDidMount() {
-        console.log('componentDidMount');
-         window.addEventListener('click', this.onCloseByClick)
-         window.addEventListener('keydown', this.onCloseByKedown)
-    }
-    componentWillUnmount() {
-        console.log('componentWillUnmount');
-         window.removeEventListener ('keydown', this.onCloseByKedown)
-    }
-    onCloseByClick = (e) => {
+    useEffect(() => {
+        window.addEventListener('click', onCloseByClick)
+        window.addEventListener('keydown', onCloseByKedown)
+        return (
+             window.removeEventListener ('keydown', onCloseByKedown)
+        )
+    },[])
+   const onCloseByClick = (e) => {
         if (e.target.nodeName === "DIV") {
-            this.props.onClose()
+            onClose()
         }
     }
-    onCloseByKedown = (e) => {
+   const onCloseByKedown = (e) => {
         if (e.code === 'Escape') {
-            this.props.onClose()
+            onClose()
         }
     }
-    render() {
-        const { onGetImg, onClose } = this.props
         return createPortal(
           
             <div className={s.Overlay} onClose={onClose}>
@@ -39,9 +35,7 @@ export default class Modal extends Component{
                 </div>
             </div>,
             modalRoot,
-        )
-    }
-    
+        )    
 }
 
 Modal.propTypes = {
@@ -49,3 +43,5 @@ Modal.propTypes = {
   modalImage: PropTypes.object.isRequired,
 };
 
+
+export default Modal
