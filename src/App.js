@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import { ToastContainer} from 'react-toastify';
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
@@ -10,65 +10,59 @@ import Modal from './components/Modal';
 
 
 
-class App extends Component {
-  state = {
-    mainURL: 'https://pixabay.com/api/',
-    secondaryURL:'&image_type=photo&orientation=horizontal&per_page=12',
-    images: [],
-    myKey:'24253422-4477825d93e6eb518eebc16ed',
-    query: '',
-    page: 1,
-    status: 'idle',
-    error: null,
-    showModal: false,
-    modalImage: '',
+function App() {
+  const [images, setImages] = useState([]);
+  const [myKey, setMyKey] = useState('24253422-4477825d93e6eb518eebc16ed');
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [status, setStatus] = useState('idle');
+  const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [modalImg, setModalImg] = useState('');
 
-  }
-  componentDidMount() {
+  useEffect(() => {
     window.addEventListener('click', e => {
       if (e.target.nodeName === "IMG") {
-        this.toggleModal()
+        toggleModal()
       }
     })
-  }
-  componentDidUpdate(prevProps, prevState) {
-    const { mainURL, secondaryURL, query, page, myKey } = this.state;
+  });
 
+  useEffect(() => {
     window.scrollTo({
-              top: document.documentElement.scrollHeight,
-              behavior: "smooth",
-        });
+      top: document.documentElement.scrollHeight,
+      behavior: "smooth",
+    });
     
-    if (prevState.query !== query) {
-      this.setState({ status: 'pending' })
+    setStatus('pending')
       
-      setTimeout(() => {
-        fetch(`${mainURL}?q=${query}&page=${page}&key=${myKey}${secondaryURL}`)
-      .then(response => {
-        if (response.ok) {
-          return response.json()
-        }
-        return Promise.reject(new Error(`Can not find ${query}!`));
-      })
+    setTimeout(() => {
+      fetch(`https://pixabay.com/api/?q=${query}&page=${page}&key=${myKey}&image_type=photo&orientation=horizontal&per_page=12`)
+        .then(response => {
+          if (response.ok) {
+            return response.json()
+          }
+          return Promise.reject(new Error(`Can not find ${query}!`));
+        })
         .then((response) => {
-          this.setState({ images: response.hits, page: page + 1, status: 'resolved' })
-        })     
-      }, 1000);
-      
-      
-    }
-    
+          setImages(response.hits);
+          setPage(prev => prev + 1);
+          setStatus('resolved');
+        })
+        .catch(error => alert("Ой что-то пошло не так((("))
+        .finally(() => setStatus('resolved'))
+    }, 1000);
+  }, [myKey, page, query]);
+  
+ const searchQuery = query => {
+    setQuery(query);
+   setPage(1);
+   setImages([]);
   }
-  searchQuery = query => {
-    this.setState({ query });
-    this.setState({page: 1})
-  }
-  loadMore = () => {
-    this.setState((prev) => ({ page: prev.page + 1 }))
-    
-    const { mainURL, secondaryURL, query, page, myKey } = this.state;
-     
-      fetch(`${mainURL}?q=${query}&page=${page}&key=${myKey}${secondaryURL}`)
+ const loadMore = () => {
+   setPage(prev => prev + 1)
+         
+      fetch(`https://pixabay.com/api/?q=${query}&page=${page}&key=${myKey}&image_type=photo&orientation=horizontal&per_page=12`)
       .then(response => {
         if (response.ok) {
           return response.json()
@@ -76,33 +70,29 @@ class App extends Component {
         return Promise.reject(new Error(`Can not find ${query}!`));
       })
       .then((response) => {
-        this.setState((prevState) => ({ images: [...prevState.images, ...response.hits], status: 'resolved' }))
+        setImages(prevState => [...prevState, ...response.hits])
+        setStatus('resolved')
         
       })
+        .catch(error => alert("Ой что-то пошло не так((("))
+   .finally(()=>setStatus('resolved'))
   }
   
-  toggleModal = () => {
-    
-    this.setState(({ showModal }) => (
-      { showModal: !showModal }
-    ))
+  const toggleModal = () => {
+    setShowModal(prev => !showModal)
   }
-  setImgModal = (img, alt) => {
-    this.setState({ modalImage: { img: img, alt: alt } });
+ const setImgModal = (img, alt) => {
+    setModalImg({ img: img, alt: alt });
   };
- 
-  render() {
-    console.log(this.state.modalImage);
-    const { status, images, showModal, modalImage } = this.state
     return (
       <>
-      <Searchbar onSubmit={this.searchQuery} />
+      <Searchbar onSubmit={searchQuery} />
       <ToastContainer autoClose={3000} />
         {status === 'resolved' &&
           <ImageGallery
           images={images}
-          showModal={this.toggleModal}
-          onGetImg={this.setImgModal}
+          showModal={toggleModal}
+          onGetImg={setImgModal}
         />
         }
         {status === 'pending' &&
@@ -116,15 +106,14 @@ class App extends Component {
          style={({margin: '0 50%'})}/>
         
         }
-        {images.length !== 0 && <Button onClick={this.loadMore}/>
+        {images.length !== 0 && <Button onClick={loadMore}/>
         }
         {showModal && <Modal
-          onClose={this.toggleModal}
-          onGetImg={modalImage}
+          onClose={toggleModal}
+          onGetImg={modalImg}
         />}
     </>
    )
-  }
 }
 
 export default App
