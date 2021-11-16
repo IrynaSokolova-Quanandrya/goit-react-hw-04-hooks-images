@@ -2,7 +2,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import s from '../ImageGalleryItem/ImageGalleryItem.module.css'
 
-function ImageGalleryItem ({webformatURL, tags, largeImageURL, onOpen, onGetImg}) {
+function ImageGalleryItem({ webformatURL, tags, largeImageURL, onOpen, onGetImg }) {
+    console.log({onOpen});
         return (
             <li className={s.ImageGalleryItem}
                 onClick={() => onGetImg(largeImageURL, tags)}
