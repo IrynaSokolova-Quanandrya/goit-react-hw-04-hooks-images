@@ -8,27 +8,22 @@ import Loader from "react-loader-spinner";
 import Button from './components/Button';
 import Modal from './components/Modal';
 
-
+const MY_KEY = '24253422-4477825d93e6eb518eebc16ed';
 
 function App() {
   const [images, setImages] = useState([]);
-  const [myKey, setMyKey] = useState('24253422-4477825d93e6eb518eebc16ed');
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState('idle');
-  const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [modalImg, setModalImg] = useState('');
 
-  useEffect(() => {
-    window.addEventListener('click', e => {
-      if (e.target.nodeName === "IMG") {
-        toggleModal()
-      }
-    })
-  });
+  
 
   useEffect(() => {
+    if (!query) {
+      return
+    }
     window.scrollTo({
       top: document.documentElement.scrollHeight,
       behavior: "smooth",
@@ -37,7 +32,7 @@ function App() {
     setStatus('pending')
       
     setTimeout(() => {
-      fetch(`https://pixabay.com/api/?q=${query}&page=${page}&key=${myKey}&image_type=photo&orientation=horizontal&per_page=12`)
+      fetch(`https://pixabay.com/api/?q=${query}&page=${page}&key=${MY_KEY}&image_type=photo&orientation=horizontal&per_page=12`)
         .then(response => {
           if (response.ok) {
             return response.json()
@@ -52,8 +47,15 @@ function App() {
         .catch(error => alert("Ой что-то пошло не так((("))
         .finally(() => setStatus('resolved'))
     }, 1000);
-  }, [myKey, page, query]);
+  }, [query]);
   
+  useEffect(() => {
+    window.addEventListener('click', e => {
+      if (e.target.nodeName === "IMG") {
+        toggleModal()
+      }
+    })
+  });
  const searchQuery = query => {
     setQuery(query);
    setPage(1);
@@ -62,7 +64,7 @@ function App() {
  const loadMore = () => {
    setPage(prev => prev + 1)
          
-      fetch(`https://pixabay.com/api/?q=${query}&page=${page}&key=${myKey}&image_type=photo&orientation=horizontal&per_page=12`)
+      fetch(`https://pixabay.com/api/?q=${query}&page=${page}&key=${MY_KEY}&image_type=photo&orientation=horizontal&per_page=12`)
       .then(response => {
         if (response.ok) {
           return response.json()
@@ -79,10 +81,10 @@ function App() {
   }
   
   const toggleModal = () => {
-    setShowModal(prev => !showModal)
+    setShowModal(prev => !prev)
   }
  const setImgModal = (img, alt) => {
-    setModalImg({ img: img, alt: alt });
+   setModalImg({ img: img, alt: alt });
   };
     return (
       <>
