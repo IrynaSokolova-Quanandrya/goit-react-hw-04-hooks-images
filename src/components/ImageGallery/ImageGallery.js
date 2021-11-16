@@ -3,8 +3,8 @@ import ImageGalleryItem from '../ImageGalleryItem';
 import PropTypes from 'prop-types';
 import s from '../ImageGallery/ImageGallery.module.css';
 
-function ImageGallery({ images, showModal, onGetImg }) {
-   
+function ImageGallery({ images,  onGetImg, showModal}) {
+   console.log({showModal});
       return (
       
       <ul className={s.ImageGallery}>
