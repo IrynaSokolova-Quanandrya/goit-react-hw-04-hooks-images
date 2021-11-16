@@ -40,7 +40,7 @@ function Modal({ onClose, onGetImg}) {
 
 Modal.propTypes = {
   onClose: PropTypes.func.isRequired,
-  modalImage: PropTypes.object.isRequired,
+  onGetImg: PropTypes.object.isRequired,
 };
 
 
